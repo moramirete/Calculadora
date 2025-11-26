@@ -44,8 +44,19 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        val opActual = pantallaResultado.text.toString()
+
         //Para que se pueda operar con numero negativos o positivos
         if (op == "+" || op == "-") {
+
+            //Metodo para que no puedas poner mas de un signo seguido
+            if (opActual.isNotEmpty()) {
+                val ultimoCaracter = opActual.last().toString()
+                if (ultimoCaracter == "+" || ultimoCaracter == "-") {
+                    return
+                }
+            }
+
             if (pantallaResultado.text.toString() == "0") {
                 pantallaResultado.text = op
             } else {
