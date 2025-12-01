@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import net.objecthunter.exp4j.ExpressionBuilder
 
@@ -110,5 +111,10 @@ class MainActivity : AppCompatActivity() {
             ultimoEsNumero = false
             ultimoEsPunto = true
         }
+    }
+
+    fun onMostrarHistorial(view: View) {
+        // Lógica para mostrar el historial
+        Toast.makeText(this, "texto ejemplo", Toast.LENGTH_LONG).show()
     }
 }
