@@ -1,10 +1,12 @@
 package com.example.calculadora_sergiomoramirete
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import net.objecthunter.exp4j.ExpressionBuilder
 
@@ -14,13 +16,39 @@ class MainActivity : AppCompatActivity() {
     private var estadoDeError: Boolean = false
     private var ultimoEsPunto: Boolean = false
 
+    private lateinit var historialButton: ImageButton
+    private val history = ArrayList<String>()
+    private val HISTORY_REQUEST_CODE = 1
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         pantallaResultado = findViewById(R.id.pantallaResultado)
+        historialButton = findViewById(R.id.btnHistorial) // Encuentra el botón por su ID
+
+        historialButton.setOnClickListener {
+            val intentHistorial = Intent(this, HistorialActivity::class.java)
+            intentHistorial.putStringArrayListExtra("history", history)
+            startActivityForResult(intentHistorial, HISTORY_REQUEST_CODE)
+        }
     }
 
-    //Funcion para que se muestre el boton pulsado en la pantallaResultado
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == HISTORY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            if (data?.getBooleanExtra("history_cleared", false) == true) {
+                history.clear()
+            }
+            data?.getStringExtra("result")?.let { result ->
+                pantallaResultado.text = result
+                ultimoEsPunto = result.contains(".")
+                ultimoEsNumero = true
+                estadoDeError = false
+            }
+        }
+    }
+
     fun onBotonPulsado(view: View) {
         val boton = view as Button
         if (estadoDeError) {
@@ -36,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         ultimoEsNumero = true
     }
 
-    //Funcion para que se muestre el operador pulsado en la pantallaResultado
     fun onOperador(view: View) {
         val boton = view as Button
         val op = boton.text.toString()
@@ -47,10 +74,7 @@ class MainActivity : AppCompatActivity() {
 
         val opActual = pantallaResultado.text.toString()
 
-        //Para que se pueda operar con numero negativos o positivos
         if (op == "+" || op == "-") {
-
-            //Metodo para que no puedas poner mas de un signo seguido
             if (opActual.isNotEmpty()) {
                 val ultimoCaracter = opActual.last().toString()
                 if (ultimoCaracter == "+" || ultimoCaracter == "-") {
@@ -74,20 +98,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    //Funcion para que calcule el resultado y se muestre en la pantallaResultado
     fun onIgual(view: View) {
         if (ultimoEsNumero && !estadoDeError) {
             val texto = pantallaResultado.text.toString()
             try {
                 val expresion = ExpressionBuilder(texto).build()
                 val resultado = expresion.evaluate()
-                if (resultado == resultado.toLong().toDouble()) {
-                    pantallaResultado.text = resultado.toLong().toString()
-                    ultimoEsPunto = false
+                val resultadoString = if (resultado == resultado.toLong().toDouble()) {
+                    resultado.toLong().toString()
                 } else {
-                    pantallaResultado.text = resultado.toString()
-                    ultimoEsPunto = true
+                    resultado.toString()
                 }
+                history.add("$texto = $resultadoString")
+                pantallaResultado.text = resultadoString
+                ultimoEsPunto = pantallaResultado.text.contains(".")
             } catch (ex: Exception) {
                 pantallaResultado.text = "Error"
                 estadoDeError = true
@@ -96,7 +120,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    //Funcion para el C, que borra el texto de la pantallaResultado
     fun onClear(view: View) {
         pantallaResultado.text = "0"
         ultimoEsNumero = false
@@ -104,17 +127,11 @@ class MainActivity : AppCompatActivity() {
         ultimoEsPunto = false
     }
 
-    //Funcion para el decimal, que añade un punto a la pantallaResultado
     fun onDecimal(view: View) {
         if (ultimoEsNumero && !estadoDeError && !ultimoEsPunto) {
             pantallaResultado.append(".")
             ultimoEsNumero = false
             ultimoEsPunto = true
         }
-    }
-
-    fun onMostrarHistorial(view: View) {
-        // Lógica para mostrar el historial
-        Toast.makeText(this, "texto ejemplo", Toast.LENGTH_LONG).show()
     }
 }

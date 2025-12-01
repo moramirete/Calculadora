@@ -6,4 +6,13 @@
     </style>
 
     <style name="Theme.CalculadoraSergioMoraMirete" parent="Base.Theme.CalculadoraSergioMoraMirete" />
+
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.Dialog.Alert">
+        <!-- Color de fondo del diálogo -->
+        <item name="android:background">#1c1c1e</item>
+
+        <!-- Color del texto del título -->
+        <item name="android:textColorPrimary">#FF9500</item>
+    </style>
+
 </resources>
