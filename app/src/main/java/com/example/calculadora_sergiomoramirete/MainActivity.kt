@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private var ultimoEsNumero: Boolean = false
     private var estadoDeError: Boolean = false
     private var ultimoEsPunto: Boolean = false
+    private var esResultado: Boolean = false
 
     private lateinit var historialButton: ImageButton
     private val history = ArrayList<String>()
@@ -75,11 +76,13 @@ class MainActivity : AppCompatActivity() {
                 ultimoEsPunto = result.contains(".")
                 ultimoEsNumero = true
                 estadoDeError = false
+                esResultado = true
             }
         }
     }
 
     private fun onBorrarDigito() {
+        esResultado = false
         if (estadoDeError) {
             pantallaResultado.text = "0"
             ultimoEsNumero = false
@@ -126,7 +129,11 @@ class MainActivity : AppCompatActivity() {
         if (estadoDeError) {
             pantallaResultado.text = boton.text
             estadoDeError = false
-        } else {
+        } else if (esResultado) {
+            pantallaResultado.text = boton.text
+            esResultado = false
+        }
+        else {
             if (pantallaResultado.text.toString() == "0") {
                 pantallaResultado.text = boton.text
             } else {
@@ -143,29 +150,19 @@ class MainActivity : AppCompatActivity() {
         if (estadoDeError) {
             return
         }
-
-        val opActual = pantallaResultado.text.toString()
-
-        if (op == "+" || op == "-") {
-            if (opActual.isNotEmpty()) {
-                val ultimoCaracter = opActual.last().toString()
-                if (ultimoCaracter == "+" || ultimoCaracter == "-") {
-                    return
-                }
-            }
-
-            if (pantallaResultado.text.toString() == "0") {
-                pantallaResultado.text = op
-            } else {
-                pantallaResultado.append(op)
-            }
+        
+        if (ultimoEsNumero || esResultado) {
+            pantallaResultado.append(op)
             ultimoEsNumero = false
             ultimoEsPunto = false
+            esResultado = false
         } else {
-            if (ultimoEsNumero) {
-                pantallaResultado.append(op)
-                ultimoEsNumero = false
-                ultimoEsPunto = false
+            val currentText = pantallaResultado.text.toString()
+            if (currentText.isNotEmpty()) {
+                val lastChar = currentText.last()
+                if (lastChar == '+' || lastChar == '-' || lastChar == '*' || lastChar == '/') {
+                    pantallaResultado.text = currentText.dropLast(1) + op
+                }
             }
         }
     }
@@ -184,10 +181,13 @@ class MainActivity : AppCompatActivity() {
                 history.add("$texto = $resultadoString")
                 pantallaResultado.text = resultadoString
                 ultimoEsPunto = pantallaResultado.text.contains(".")
+                esResultado = true
+                ultimoEsNumero = true
             } catch (ex: Exception) {
                 pantallaResultado.text = "Error"
                 estadoDeError = true
                 ultimoEsNumero = false
+                esResultado = false
             }
         }
     }
@@ -197,9 +197,18 @@ class MainActivity : AppCompatActivity() {
         ultimoEsNumero = false
         estadoDeError = false
         ultimoEsPunto = false
+        esResultado = false
     }
 
     fun onDecimal(view: View) {
+        if (esResultado) {
+            pantallaResultado.text = "0."
+            esResultado = false
+            ultimoEsNumero = false
+            ultimoEsPunto = true
+            return
+        }
+
         if (ultimoEsNumero && !estadoDeError && !ultimoEsPunto) {
             pantallaResultado.append(".")
             ultimoEsNumero = false
