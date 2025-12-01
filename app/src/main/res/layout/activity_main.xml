@@ -19,18 +19,6 @@
         android:layout_marginTop="32dp"
         android:layout_marginBottom="8dp">
 
-        <!-- Botón de Historial (arriba a la izquierda) -->
-        <ImageButton
-            android:id="@+id/btnHistorial"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:src="@android:drawable/ic_menu_recent_history"
-            android:background="#1c1c1e"/>
-
         <!-- Pantalla donde sale el resultado (se expande y se alinea abajo a la derecha) -->
         <!-- NOTA: El padding original se ha movido aquí para controlar mejor el espacio. -->
         <TextView
@@ -45,6 +33,18 @@
             android:text="0"
             android:textColor="#E0E0E0"
             android:textSize="56sp" />
+
+        <!-- Botón de Historial (arriba a la izquierda) -->
+        <ImageButton
+            android:id="@+id/btnHistorial"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@android:drawable/ic_menu_recent_history"
+            android:background="#1c1c1e"/>
 
     </RelativeLayout>
 

@@ -22,8 +22,8 @@ class HistorialActivity : AppCompatActivity() {
         setContentView(R.layout.activity_historial)
 
         historyContainer = findViewById(R.id.history_container)
-        clearHistoryButton = findViewById(R.id.clear_history_button)
-        backButton = findViewById(R.id.back_button)
+        clearHistoryButton = findViewById(R.id.btnLimpiar)
+        backButton = findViewById(R.id.btnAtras)
 
         val history = intent.getStringArrayListExtra("history") ?: ArrayList()
 

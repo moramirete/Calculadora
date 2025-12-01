@@ -3,6 +3,8 @@ package com.example.calculadora_sergiomoramirete
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -32,8 +34,36 @@ class MainActivity : AppCompatActivity() {
             intentHistorial.putStringArrayListExtra("history", history)
             startActivityForResult(intentHistorial, HISTORY_REQUEST_CODE)
         }
+
+        // Configurar el detector de gestos para borrar caracteres
+        val detectorMovimiento = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 != null) {
+                    val diffX = e2.x - e1.x
+                    // Gesto de deslizar de izquierda a derecha
+                    if (diffX > 100 && kotlin.math.abs(velocityX) > 100) {
+                        onBorrarDigito()
+                        return true // Gesto consumido
+                    }
+                }
+                return false
+            }
+        })
+
+        pantallaResultado.setOnTouchListener { _, event ->
+            // Devuelve el resultado del detector de gestos.
+            // De esta forma, solo se consume el evento si es un gesto de deslizamiento.
+            detectorMovimiento.onTouchEvent(event)
+            true
+        }
     }
 
+    //Al recibir el resultado - se actualiza la pantalla con el resultado del historial
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == HISTORY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
@@ -46,6 +76,48 @@ class MainActivity : AppCompatActivity() {
                 ultimoEsNumero = true
                 estadoDeError = false
             }
+        }
+    }
+
+    private fun onBorrarDigito() {
+        if (estadoDeError) {
+            pantallaResultado.text = "0"
+            ultimoEsNumero = false
+            estadoDeError = false
+            ultimoEsPunto = false
+            return
+        }
+
+        val currentText = pantallaResultado.text.toString()
+        if (currentText.isEmpty() || currentText == "0") {
+            return
+        }
+
+        val newText = if (currentText.length > 1) {
+            currentText.dropLast(1)
+        } else {
+            "0"
+        }
+        pantallaResultado.text = newText
+
+        if (newText == "0") {
+            ultimoEsNumero = false
+            ultimoEsPunto = false
+            return
+        }
+
+        val lastChar = newText.last()
+        if (lastChar.isDigit()) {
+            ultimoEsNumero = true
+            val lastOperatorIndex = newText.indexOfLast { it == '+' || it == '-' || it == '*' || it == '/' }
+            val numberSegment = if (lastOperatorIndex == -1) newText else newText.substring(lastOperatorIndex + 1)
+            ultimoEsPunto = numberSegment.contains('.')
+        } else if (lastChar == '.') {
+            ultimoEsNumero = false
+            ultimoEsPunto = true
+        } else { // Operator
+            ultimoEsNumero = false
+            ultimoEsPunto = false
         }
     }
 
